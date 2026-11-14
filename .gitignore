@@ -1,0 +1,6 @@
+node_modules/
+.DS_Store
+*.log
+# Types générés par le moteur de mods : non versionnés.
+plugins/agent-troupe/.claude-plugin/types/
+plugins/agent-troupe/tsconfig.json

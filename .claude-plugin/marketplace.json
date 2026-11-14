@@ -1,0 +1,21 @@
+{
+  "name": "agent-troupe",
+  "owner": {
+    "name": "AdamaDodoCisse"
+  },
+  "plugins": [
+    {
+      "name": "agent-troupe",
+      "source": "./plugins/agent-troupe",
+      "description": "Une page web locale, avec des personnages animés, qui montre vos agents Claude au travail et leurs échanges : PO, Business Analyst, IT Owner, Tech Lead, Développeur, Reviewer, QA.",
+      "version": "1.0.0",
+      "license": "MIT",
+      "keywords": [
+        "agents",
+        "subagents",
+        "visualisation",
+        "équipe"
+      ]
+    }
+  ]
+}

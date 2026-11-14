@@ -1,0 +1,78 @@
+{
+  "name": "agent-troupe",
+  "version": "1.0.0",
+  "description": "Une page web locale, avec des personnages animés, qui montre vos agents Claude au travail et leurs échanges : PO, Business Analyst, IT Owner, Tech Lead, Développeur, Reviewer, QA.",
+  "license": "MIT",
+  "keywords": [
+    "agents",
+    "subagents",
+    "visualisation",
+    "équipe",
+    "po",
+    "qa",
+    "tech-lead"
+  ],
+  "userConfig": {
+    "template": {
+      "type": "string",
+      "title": "Modèle d'équipe",
+      "description": "Équipe affichée : equipe-complete (7 rôles), livraison (Tech Lead, Développeur, Reviewer), qualite (Développeur, Reviewer, QA), cadrage (PO, Business Analyst, IT Owner, Tech Lead) ou custom (voir « Rôles personnalisés »).",
+      "default": "equipe-complete",
+      "options": [
+        "equipe-complete",
+        "livraison",
+        "qualite",
+        "cadrage",
+        "custom"
+      ]
+    },
+    "roles": {
+      "type": "string",
+      "title": "Rôles personnalisés",
+      "description": "Utilisé seulement avec le modèle custom. Format : « Rôle: mot-clé, mot-clé; Autre rôle: mot-clé ». Un rôle connu (PO, Business Analyst, IT Owner, Tech Lead, Développeur, Reviewer, QA) garde sa définition.",
+      "default": "PO: po, product-owner; Tech Lead: tech-lead; Développeur: dev; QA: qa, testeur"
+    },
+    "language": {
+      "type": "string",
+      "title": "Langue des rôles et des agents",
+      "description": "Langue des fiches de rôle et des prompts des agents enregistrés.",
+      "default": "fr",
+      "options": [
+        "fr",
+        "en"
+      ]
+    },
+    "messageText": {
+      "type": "string",
+      "title": "Texte des messages entre agents",
+      "description": "short : 140 caractères maximum (défaut) ; full : 1000 caractères ; none : aucun texte, seulement qui parle à qui.",
+      "default": "short",
+      "options": [
+        "short",
+        "full",
+        "none"
+      ]
+    },
+    "autoOpen": {
+      "type": "string",
+      "title": "Ouvrir la page automatiquement",
+      "description": "true : ouvre la page dans le navigateur au démarrage de la session. false : on l'ouvre avec /troupe open.",
+      "default": "false",
+      "options": [
+        "false",
+        "true"
+      ]
+    },
+    "port": {
+      "type": "string",
+      "title": "Port local",
+      "description": "0 : un port libre est choisi à chaque démarrage (recommandé). Sinon, un numéro de port fixe. Le serveur n'écoute jamais que sur 127.0.0.1.",
+      "default": "0"
+    }
+  },
+  "author": {
+    "name": "AdamaDodoCisse"
+  },
+  "repository": "https://github.com/AdamaDodoCisse/agent-troupe",
+  "homepage": "https://github.com/AdamaDodoCisse/agent-troupe"
+}

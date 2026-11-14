@@ -1,0 +1,11 @@
+{
+  "name": "agent-troupe-repo",
+  "private": true,
+  "description": "Outils de développement du mod agent-troupe (non publié sur npm).",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test plugins/agent-troupe/test/server.test.mjs plugins/agent-troupe/test/roles.test.mjs plugins/agent-troupe/test/state.test.mjs",
+    "test:mod": "claude plugin test plugins/agent-troupe",
+    "validate": "claude plugin validate plugins/agent-troupe"
+  }
+}
