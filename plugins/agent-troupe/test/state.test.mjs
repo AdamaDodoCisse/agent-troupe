@@ -28,6 +28,19 @@ describe('réducteur', () => {
     assert.equal(state.agents.a1.tool, null)
   })
 
+  it('un agent relancé reprend son poste sans repartir de zéro', () => {
+    const state = replay([team, { type: 'agent.start', id: 'a1', roleId: 'qa', name: 'qa', seq: 2 }, { type: 'agent.tool', id: 'a1', tool: 'Bash' }, { type: 'agent.end', id: 'a1', status: 'done' }, { type: 'agent.resume', id: 'a1' }])
+    assert.equal(state.agents.a1.status, 'working')
+    assert.equal(state.agents.a1.toolCount, 1)
+    assert.equal(state.agents.a1.roleId, 'qa')
+    assert.equal(state.order.length, 1)
+  })
+
+  it('reprendre un agent inconnu ne crée rien', () => {
+    const state = replay([team, { type: 'agent.resume', id: 'fantome' }])
+    assert.deepEqual(state.order, [])
+  })
+
   it('un agent en échec rend le poste « failed »', () => {
     const state = replay([team, { type: 'agent.start', id: 'a1', roleId: 'qa' }, { type: 'agent.end', id: 'a1', status: 'failed' }])
     assert.equal(deskState(desks(state)[0]), 'failed')

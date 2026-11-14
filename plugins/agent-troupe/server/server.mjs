@@ -18,7 +18,7 @@ const ROOT = join(HERE, '..')
 export const MAX_EVENTS = 500
 export const MAX_BODY = 16 * 1024
 export const MAX_TEXT = 1000
-const EVENT_TYPES = new Set(['team', 'lead', 'agent.start', 'agent.tool', 'agent.end', 'message', 'reset'])
+const EVENT_TYPES = new Set(['team', 'lead', 'agent.start', 'agent.resume', 'agent.tool', 'agent.end', 'message', 'reset'])
 
 const STATIC = {
   '/app.js': { file: join(ROOT, 'web', 'app.js'), type: 'text/javascript; charset=utf-8' },
@@ -74,6 +74,10 @@ export function sanitize(input) {
       event.roleId = text(input.roleId, 60)
       event.agentType = text(input.agentType, 120)
       event.task = text(input.task, 300)
+      if (!event.id) return null
+      break
+    case 'agent.resume':
+      event.id = text(input.id, 120)
       if (!event.id) return null
       break
     case 'agent.tool':

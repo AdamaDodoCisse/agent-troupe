@@ -66,6 +66,11 @@ export function reduce(state, event) {
       const order = state.order.includes(event.id) ? state.order : [...state.order, event.id]
       return { ...next, agents: { ...state.agents, [event.id]: agent }, order }
     }
+    case 'agent.resume': {
+      const agent = state.agents[event.id]
+      if (!agent) return next
+      return { ...next, agents: { ...state.agents, [event.id]: { ...agent, status: 'working', tool: null, endedAt: null } } }
+    }
     case 'agent.tool': {
       const agent = state.agents[event.id]
       if (!agent) return next

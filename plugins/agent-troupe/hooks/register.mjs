@@ -166,6 +166,8 @@ async function ensureAgent($, agentId) {
 
 /** Qui est le destinataire d'un message : un agent connu, ou seulement un nom. */
 async function resolveRecipient($, to) {
+  // « main » désigne la conversation principale, c'est-à-dire Claude, le chef d'orchestre.
+  if (to === 'main') return { id: null, name: '' }
   if (S.known.has(to)) return { id: to, name: S.known.get(to)?.name ?? '' }
   try {
     const found = (await $.agent.list()).find(one => one.id === to || one.name === to || one.teammateId === to)
@@ -253,6 +255,11 @@ function announceAgent($, e, started) {
   }
 }
 
+async function resumeAgent($, e, agentId) {
+  await ensureAgent($, agentId)
+  send($, { type: 'agent.resume', id: agentId })
+}
+
 function announceEnd($, e, done) {
   const entry = S.known.get(e.agentId)
   const failed = e.reason === 'error' || e.reason === 'aborted'
@@ -301,7 +308,11 @@ export const register = (on, options) => {
   // Un sous-agent entre en scène.
   on('agent.spawn', async ($, e, next) => {
     const started = await next(e)
-    if (started && started.deny === undefined && started.agentId) announceAgent($, e, started)
+    if (started && started.deny === undefined && started.agentId) {
+      // Un agent relancé par un message (SendMessage) reprend son poste : ce n'est ni un nouveau départ ni une délégation.
+      if (e.resume) void resumeAgent($, e, started.agentId)
+      else announceAgent($, e, started)
+    }
     return started
   })
 

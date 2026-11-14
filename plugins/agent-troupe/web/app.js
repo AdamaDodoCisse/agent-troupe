@@ -31,6 +31,7 @@ const T = {
     agents: n => `${n} agents`,
     hidden: '(texte masqué)',
     to: 'vers',
+    stale: 'Le serveur s’est arrêté ou a redémarré (rechargement du mod, fin de session). Tapez /troupe dans Claude Code pour obtenir la nouvelle adresse.',
   },
   en: {
     title: 'Agent Troupe',
@@ -60,6 +61,7 @@ const T = {
     agents: n => `${n} agents`,
     hidden: '(text hidden)',
     to: 'to',
+    stale: 'The server stopped or restarted (mod reload, end of session). Type /troupe in Claude Code to get the new address.',
   },
 }
 
@@ -77,6 +79,7 @@ let mode = 'wait' // wait | live | demo
 let source = null
 let demoTimers = []
 let paused = false
+let failures = 0
 let pending = []
 const rendered = new Set()
 const seenFlights = new Set()
@@ -346,6 +349,7 @@ function connect() {
   source?.close()
   source = new EventSource(`/events?t=${encodeURIComponent(token)}`)
   source.onopen = () => {
+    failures = 0
     if (mode !== 'demo') {
       mode = 'live'
       chrome()
@@ -360,10 +364,12 @@ function connect() {
     }
   }
   source.onerror = () => {
+    failures += 1
     if (mode !== 'demo') {
       mode = 'wait'
       chrome()
-      els.connText.textContent = t().offline
+      // Après quelques échecs d'affilée, le serveur n'est plus là : on le dit au lieu de « Reconnexion… » sans fin.
+      els.connText.textContent = failures >= 3 ? t().stale : t().offline
     }
   }
 }

@@ -119,6 +119,10 @@ describe('sanitize', () => {
     assert.equal(clean.text.length, 1000)
     assert.equal('secret' in clean, false)
   })
+  it('accepte la reprise d\'un agent, qui exige un identifiant', () => {
+    assert.equal(sanitize({ type: 'agent.resume', id: 'a1' }).type, 'agent.resume')
+    assert.equal(sanitize({ type: 'agent.resume' }), null)
+  })
   it('refuse un type inconnu et un agent sans identifiant', () => {
     assert.equal(sanitize({ type: 'autre' }), null)
     assert.equal(sanitize({ type: 'agent.start' }), null)

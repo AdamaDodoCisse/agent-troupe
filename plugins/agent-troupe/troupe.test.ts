@@ -179,3 +179,34 @@ test('le mécanisme de retour d\'un sous-agent n\'est pas affiché comme un outi
   const tools = posted.filter(p => p.body.type === 'agent.tool').map(p => p.body.tool)
   expect(tools).not.toContain('SubagentHandback')
 })
+
+test('un agent relancé par un message reprend son poste : pas de nouveau départ ni de fausse délégation', async ($, on) => {
+  const posted: any[] = []
+  engine(on, posted, [])
+  on('session.start', (_: unknown, e: any) => ({ cwd: e.cwd }))
+  on('agent.spawn', () => ({ model: 'm', agentId: 'agent-5' }))
+
+  await $.session.start({ cwd: '/', surface: 'terminal', isInteractive: true })
+  await $.agent.spawn({ prompt: 'x', description: 'Tester', subagentType: 'agent-troupe:qa', name: 'qa' })
+  await $.agent.spawn({ prompt: 'Peux-tu valider ?', description: 'Tester', subagentType: 'agent-troupe:qa', name: 'qa', resume: { agentId: 'agent-5' } } as any)
+  await tick()
+
+  expect(posted.filter(p => p.body.type === 'agent.start')).toHaveLength(1)
+  expect(posted.filter(p => p.body.type === 'message')).toHaveLength(1)
+  expect(posted.filter(p => p.body.type === 'agent.resume').map(p => p.body.id)).toEqual(['agent-5'])
+})
+
+test('un message vers « main » est affiché comme un message vers Claude', async ($, on) => {
+  const posted: any[] = []
+  engine(on, posted, [])
+  on('session.start', (_: unknown, e: any) => ({ cwd: e.cwd }))
+  on('session.send', () => ({ isDelivered: true }))
+
+  await $.session.start({ cwd: '/', surface: 'terminal', isInteractive: true })
+  await $.session.send({ to: 'main', text: 'Rapport prêt' })
+  await tick()
+
+  const message = posted.find(p => p.body.type === 'message')
+  expect(message.body.toId).toBeNull()
+  expect(message.body.toName).toBe('')
+})
