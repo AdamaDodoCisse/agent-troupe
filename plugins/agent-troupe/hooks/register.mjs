@@ -11,6 +11,8 @@ import { DEFAULT_TEMPLATE, TEMPLATES, activeRoles, agentSpecFor, launchPhrase, m
 const SHORT_WIDTH = 140
 const MAX_QUEUE = 300
 const MAX_FAILURES = 5
+/** Le retour d'un sous-agent à celui qui l'a lancé : montré comme un message, pas comme un outil. */
+const HANDBACK_TOOL = 'SubagentHandback'
 
 /** Une ligne, tronquée : ce que l'on accepte de montrer d'un message. */
 function trimText(text, mode) {
@@ -245,6 +247,10 @@ function announceAgent($, e, started) {
   const role = matchRole(info, S.roles)
   S.known.set(started.agentId, { name: info.name, roleId: role?.id ?? null })
   send($, { type: 'agent.start', id: started.agentId, name: info.name, roleId: role?.id ?? undefined, agentType: info.type, task: info.description })
+  // La délégation apparaît dans le fil : Claude confie une tâche au rôle (description courte, jamais le prompt).
+  if (info.description !== '') {
+    send($, { type: 'message', fromId: null, toId: started.agentId, toName: info.name, text: trimText(info.description, S.textMode) })
+  }
 }
 
 function announceEnd($, e, done) {
@@ -305,11 +311,11 @@ export const register = (on, options) => {
       send($, { type: 'lead', state: 'working', tool: e.tool })
     } else {
       void ensureAgent($, e.agentId)
-      send($, { type: 'agent.tool', id: e.agentId, tool: e.tool })
+      if (e.tool !== HANDBACK_TOOL) send($, { type: 'agent.tool', id: e.agentId, tool: e.tool })
     }
     const ran = await next(e)
     if (e.agentId === undefined) send($, { type: 'lead', state: 'working', tool: '' })
-    else send($, { type: 'agent.tool', id: e.agentId, tool: '' })
+    else if (e.tool !== HANDBACK_TOOL) send($, { type: 'agent.tool', id: e.agentId, tool: '' })
     return ran
   })
 

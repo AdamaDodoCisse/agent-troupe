@@ -80,9 +80,13 @@ Voir [SECURITY.md](SECURITY.md).
 
 ### Limites connues
 
-- Les « communications » visibles sont celles qui passent par les événements du moteur : messages envoyés avec `SendMessage` et réponses finales des sous-agents. Ce que des agents se disent autrement n'est pas visible.
+- **Ce que la page voit des échanges.** Avec l'outil `Agent`, un sous-agent ne parle pas aux autres : il rend compte à Claude. La page montre donc la **délégation** (Claude vers le rôle, avec la description de la tâche) puis le **retour** (rôle vers Claude, texte tronqué). Un échange direct de rôle à rôle n'apparaît que si des agents nommés s'écrivent avec `SendMessage` : ce cas est branché (événement `session.send`) mais **n'a pas encore été vérifié en conditions réelles**.
 - Testé sous macOS avec Node 24 ; Windows, Linux et Node 18 à 22 ne sont pas encore testés.
 - La page n'est pas rejouable après coup : elle ne garde que les 500 derniers événements de la session en cours.
+
+### Vérifié en conditions réelles
+
+Sur un vrai projet, sept sous-agents (`agent-troupe:po`, `ba`, `it-owner`, `tech-lead`, `developpeur`, `reviewer`, `qa`) ont été lancés dans une session. Le serveur a reçu 108 événements : chaque agent est arrivé à son poste, avec le bon rôle reconnu par son type, puis sa fin et son retour sont apparus dans le fil. Les agents avaient pour consigne de ne rien modifier.
 
 ### Développement
 
@@ -148,7 +152,12 @@ Everything stays on your machine: the server listens on `127.0.0.1` only, makes 
 
 ### Known limits
 
-Visible “communications” are those the engine exposes (`SendMessage` messages and subagents’ final answers). Tested on macOS with Node 24 only. The page keeps only the last 500 events of the current session.
+- **What the page sees of the exchanges.** With the `Agent` tool a subagent does not talk to the others: it reports to Claude. The page therefore shows the **delegation** (Claude to the role, with the task description) and then the **report** (role to Claude, truncated text). A direct role-to-role exchange shows up only when named agents write to each other with `SendMessage`: that case is wired (`session.send` event) but **has not been verified in real conditions yet**.
+- Tested on macOS with Node 24 only. The page keeps only the last 500 events of the current session.
+
+### Verified in real conditions
+
+On a real project, seven subagents (`agent-troupe:po`, `ba`, `it-owner`, `tech-lead`, `developpeur`, `reviewer`, `qa`) were started in one session. The server received 108 events: each agent reached its desk with the right role (recognised from its type), then its end and its report appeared in the feed.
 
 ### License
 

@@ -59,6 +59,9 @@ test('un sous-agent de type agent-troupe:qa arrive au poste QA, sans son prompt'
 
   const started = posted.find(p => p.body.type === 'agent.start')
   expect(started.body).toMatchObject({ id: 'agent-1', roleId: 'qa', name: 'qa', task: 'Tester le panier' })
+  // La délégation apparaît dans le fil comme un message de Claude vers le rôle.
+  const delegation = posted.find(p => p.body.type === 'message')
+  expect(delegation.body).toMatchObject({ fromId: null, toId: 'agent-1', text: 'Tester le panier' })
   expect(JSON.stringify(posted)).not.toContain('SECRET')
 })
 
@@ -159,4 +162,20 @@ test('un rôle anglais utilise les textes anglais', { options: { language: 'en',
   const team = posted.find(p => p.body.type === 'team')
   expect(team.body.label).toBe('Delivery')
   expect(team.body.roles.map((r: any) => r.label)).toEqual(['Tech Lead', 'Developer', 'Reviewer'])
+})
+
+test('le mécanisme de retour d\'un sous-agent n\'est pas affiché comme un outil de travail', async ($, on) => {
+  const posted: any[] = []
+  engine(on, posted, [])
+  on('session.start', (_: unknown, e: any) => ({ cwd: e.cwd }))
+  on('agent.spawn', () => ({ model: 'm', agentId: 'agent-9' }))
+  on('tool.call', () => ({ result: {} }))
+
+  await $.session.start({ cwd: '/', surface: 'terminal', isInteractive: true })
+  await $.agent.spawn({ prompt: 'x', description: 'Relire', subagentType: 'agent-troupe:reviewer', name: 'reviewer' })
+  await $.tool.call({ tool: 'SubagentHandback', agentId: 'agent-9', text: 'fini' })
+  await tick()
+
+  const tools = posted.filter(p => p.body.type === 'agent.tool').map(p => p.body.tool)
+  expect(tools).not.toContain('SubagentHandback')
 })
